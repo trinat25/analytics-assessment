@@ -11,4 +11,5 @@ Let’s build better user experiences through data—I strive to add value from 
 ## Table of Contents 
 1. [View SQL Programming File](https://github.com/trinat25/analytics-assessment/blob/main/SQL%20Programming.sql)
 2. [Exploratory Data Analysis (EDA)](https://github.com/trinat25/analytics-assessment/blob/main/Exploratory%20Data%20Analysis.md)
+3. [Solution Design (Theory)](https://github.com/trinat25/analytics-assessment/blob/main/experimentation-solution-design.md) 
 
