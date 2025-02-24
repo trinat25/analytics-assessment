@@ -13,7 +13,8 @@ In this case, I noticed
     - 1.29% of impressions are in negative (about 130 of the 9,999 rows impacted)
     - Increase in margin of error. This can widen confidence intervals and increase the margin of error, leading to less precise parameter estimates in your predictive model.
     - Method used , replace with 0 , ignore rows with negative impressions or replace values with median. 
-  - estimated_size only contain small and medium, good to check if the dataset should also have large job size before commencing. 
+  - estimated_size only contain small and medium, good to check if the dataset should also have large job size before commencing.
+  - No data available for 23 hour time_of_post
 
 ### Step 3 Exploration 
 - Target Variable (accepted) 
@@ -23,15 +24,13 @@ In this case, I noticed
   - Used boxplot to identify outliers.
 - Other exploration
   - acceptance vs estimated job size
-  - acceptance vs impressions
+  - acceptance vs impressions per tradie
   - acceptance vs category
-
-For the above, please refer to this [visualisation](https://public.tableau.com/app/profile/trina6463/viz/EDA-analytics-assessment/ExploratoryDataAnalysisPt1)
- 
   - acceptance vs hour or day of week
-  - job volume by state
+  - scatter plot to show relationship of impressions per tradie vs acceptance rate
     
-For the last 2 points, please refer to this [visualisation](https://public.tableau.com/app/profile/trina6463/viz/EDA-analytics-assessmentPt2/ExploratoryDataAnalysisPt2?publish=yes)
+Please refer to this [visualisation](https://public.tableau.com/app/profile/trina6463/viz/analytics-assessment/analyticsassessment?publish=yes) 
+
 
 ### Step 4 Identify the Features that Best Predict Job Acceptance
 Based on the above EDA, I explored the possibility of predicting job acceptance using a Random Forest classifier and KMeans clustering. 
@@ -135,10 +134,10 @@ With this plot
 ![Screenshot 2025-02-24 at 1 05 54 am](https://github.com/user-attachments/assets/25504ebd-e269-497f-bc1d-9bd6241b30d7)
 
 ### Step 5 - Recommendations 
-1. Boost Job Impressions:
-Since number_of_impressions has the highest importance (0.321088), increasing the visibility of job postings is key. Consider:
-- Enhancing notification systems or email alerts to reach more tradies.
-- Optimising the platform’s UI to feature high-potential jobs more prominently.
+1. Optimise Job Impressions Without Oversaturation:
+While number_of_impressions is the most important factor (0.321088), the negative correlation between impressions per tradie and job acceptance rate suggests that simply increasing impressions may reduce engagement. Therefore, focus on targeted visibility rather than mass exposure:
+- Personalised Notifications: Use machine learning models to recommend jobs that match each tradie’s skills, location, and past preferences, ensuring that impressions are relevant.
+- Frequency Capping: Limit the number of times a single tradie sees the same job to prevent notification fatigue.
 
 2. Optimise Posting Times:
 With post_hour (0.291276) and post_dayofweek (0.118245) being influential, the timing of job posts is critical. You could:
