@@ -1,171 +1,158 @@
-# Solution Design (Theory)
+# Solution Design Overview
 
-Small summary of my thinking : 
-Mandating 4 leads per job refers to increasing the maximum number of tradies who can claim a lead for a single job from 3 to 4. This change aims to provide consumers with more options while potentially increasing lead utilisation and platform revenue.
+This document outlines the A/B test design to evaluate whether increasing tradie leads per job from 3 to 4 improves lead utilisation without harming key secondary outcomes.
 
-- Potential Benefits:
-  - Increased Competition: Consumers may receive more competitive quotes, improving the likelihood of finding a suitable tradie.
-  - Higher Lead Utilisation: Allowing an additional tradie to claim each job may improve the platform’s lead utilisation rate, generating more revenue per job listing.
-  - Better Consumer Experience: Consumers have more choices, potentially leading to higher job completion rates.
-- Potential Downsides:
-  - Lower Lead Acceptance Rate: With increased competition, each tradie’s probability of securing a job decreases, which may reduce engagement and ROI.
-  - Consumer Overload: Receiving too many quotes may overwhelm consumers, making them less likely to respond or proceed with a job booking.
-  - Tradie Dissatisfaction: Tradies may become less willing to purchase leads if their success rate declines, negatively impacting long-term retention.
+---
 
-## Preparation 
+## 1. Test Rationale & Considerations
 
-### Objective of test 
-Is to determine if increase the number of leads per job from 3 to 4 will result in higher lead utilisation while maintaining tradie engagement and conversion rates.
-### Set Hypothesis 
-- Null Hypothesis (H₀): Increasing the number of leads to 4 does not increase lead utilisation.
-- Alternative Hypothesis (H₁): Increasing the number of leads to 4 does increase lead utilisation.
-### Identify primary metric
-Primary Metric 
-- lead utilisation rate on Hipages platform  : total leads claimed by tradies / total leads available.
-Measures the platform's efficiency in matching leads with tradies.
-For example, if 100 leads are posted and 75 are claimed by tradies, the platform-level utilisation rate is 75%.
-- Why This Matters:
-  - Higher utilisation means fewer unclaimed leads, indicating better matching and lead relevance.
-  - Lower utilisation might highlight issues such as:
-  - Poor job-tradie fit
-  - Competition saturation
-### Guardrail / Secondary metric 
-This is to make sure an increase in primary metric do not come at the expense of other key business outcomes. 
-1.  Lead Acceptance Rate
-Definition: Percentage of leads that result in a consumer accepting a quote.
-Lead Acceptance Rate=Number of jobs accepted/Number of leads claimed
-- Why It Matters:
-  - More leads per job might overwhelm consumers, making them less likely to select a tradie.
-  - A significant drop in this metric would indicate that the additional lead is diluting consumer interest.
-- Threshold:
-  - A decrease of more than 5-10% in the Lead Acceptance Rate should trigger a review to determine if the change negatively impacts consumer decision-making.
- 
-2. Tradie Lead ROI (Return on Investment)
-Definition: The percentage of leads claimed that result in a paid job for the tradie.
-Lead ROI=Number of jobs won/Number of leads claimed
-- Why It Matters:
-  - More competition means fewer won jobs per tradie, potentially reducing their ROI and increasing frustration.
-  - A decline in ROI might lead to churn if tradies feel their lead credits are yielding fewer returns.
-- Threshold:
-  - A drop of more than 5-10% in Lead ROI should trigger an investigation into whether additional competition is reducing the value of each lead.
- 
-3. Tradie Churn Rate (Lagging Indicator)
-Definition: Percentage of tradies who cancel their subscription within a given time frame (e.g., within 1 or 3 months).
-Tradie Churn Rate=Number of subscriptions cancelled/Total active subscriptions
-- Why It Matters:
-  - Increased competition may lead to lower ROI, causing tradies to churn after their subscription period ends.
-  - Since churn is a lagging indicator, it should be monitored both during and after the experiment.
-- Threshold:
-  - An increase of more than 5% in monthly churn within 3 months of rolling out the feature would indicate a negative long-term impact.
- 
-### Choosing a test method 
-# Short Comparison of Bayesian vs Frequentist A/B Testing
+**Benefits:**
+- **Increased Competition:** More tradies can claim a lead, leading to more competitive quotes.
+- **Higher Lead Utilisation:** More leads claimed may boost platform revenue.
+- **Enhanced Consumer Experience:** More options for consumers.
+
+**Downsides:**
+- **Reduced Lead Acceptance:** Too many options may overwhelm consumers.
+- **Lower Tradie ROI:** Increased competition might decrease each tradie’s success rate.
+- **Potential Churn:** Poor ROI could lead to higher tradie churn over time.
+
+---
+
+## 2. Test Preparation
+
+### Objective
+Determine if increasing leads per job from 3 to 4 improves lead utilisation while preserving tradie engagement and conversion rates.
+
+### Hypotheses
+- **H₀:** Increasing leads to 4 does not improve utilisation.
+- **H₁:** Increasing leads to 4 improves utilisation.
+
+### Primary Metric
+**Lead Utilisation Rate:**  
+- **Formula:**  
+  `Utilisation Rate = (Total Leads Claimed) / (Total Leads Available)`
+- **Example:**  
+  If 100 leads are posted and 75 are claimed, the utilisation rate is 75%.
+
+### Secondary (Guardrail) Metrics
+1. **Lead Acceptance Rate:**  
+   - **Formula:**  
+     `Lead Acceptance Rate = (Jobs Accepted) / (Leads Claimed)`
+   - **Threshold:**  
+     A drop of more than 5–10% triggers review.
+2. **Tradie Lead ROI:**  
+   - **Formula:**  
+     `Tradie Lead ROI = (Jobs Won) / (Leads Claimed)`
+   - **Threshold:**  
+     A drop of more than 5–10% triggers investigation.
+3. **Tradie Churn Rate:**  
+   - **Formula:**  
+     `Tradie Churn Rate = (Subscriptions Cancelled) / (Total Active Subscriptions)`
+   - **Threshold:**  
+     An increase of more than 5% in monthly churn triggers review.
+
+---
+
+## 3. Test Method
+
+### Bayesian vs. Frequentist
 
 | **Aspect**           | **Bayesian**                                          | **Frequentist**                             |
 |----------------------|-------------------------------------------------------|---------------------------------------------|
-| **Interpretability** | Direct probability statements; easier to understand  | p-values and confidence intervals           |
-| **Flexibility**      | Adaptive sampling; supports early stopping             | Requires fixed sample sizes                 |
-| **Prior Information**| Incorporates historical data for nuanced insights       | Does not integrate prior data               |
+| **Interpretability** | Direct probability statements (e.g., "96% chance")    | p-values & confidence intervals             |
+| **Flexibility**      | Adaptive sampling; supports early stopping            | Fixed sample sizes                           |
+| **Prior Data**       | Incorporates historical data                          | No integration of prior data                 |
 
-## Why Bayesian is Beneficial for the hipages Test
+### Why Bayesian?
+- **Continuous Monitoring:** Adaptive, real-time analysis.
+- **Intuitive Communication:** Results are expressed as probabilities.
+- **Historical Data Integration:** Uses prior performance for informed analysis.
 
-- **Continuous Monitoring & Early Stopping:**  
-  The Bayesian framework supports ongoing analysis without the need for pre-determined sample sizes. This is advantageous in the hipages scenario where early detection of significant improvements (or lack thereof) in lead utilisation can help in quicker decision making.
+---
 
-- **Intuitive Communication:**  
-  By directly providing the probability of one variant being better than the other, Bayesian results are more easily communicated to product managers and non-technical stakeholders. This clarity helps in building confidence in the decision process.
+## 4. Technical Execution
 
-- **Utilisation of Historical Data:**  
-  Bayesian methods allow the integration of past performance data or expert opinions as priors. For hipages, where historical data on lead conversion might exist, this leads to more informed insights even if the new feature’s impact is subtle.
+### Variants
+- **Control Group:** 3 leads per job.
+- **Treatment Group:** 4 leads per job.
 
-- **Adaptive Experimentation:**  
-  Since the Bayesian approach is inherently more flexible, the experiment can adapt based on interim results. This is particularly useful in a dynamic environment like hipages, where consumer behavior and tradie engagement can vary widely.
+### Tracking Requirements
+- **Variant Assignment:** Record which job receives 3 or 4 leads.
+- **Job Data:** Capture job ID, consumer ID, category, location, and timestamp.
+- **Lead Events:** Log when tradies claim a lead (timestamp, tradie ID).
+- **Conversion Events:** Track outcomes (e.g., quote provided, job accepted).
 
-Overall, for hipages’ goal of optimizing lead utilisation by mandating 4 leads per job, the Bayesian approach not only aligns better with real-world decision making but also provides a robust framework to handle uncertainty and integrate prior insights, leading to more actionable and transparent results.
+### Sample Data Schema
 
-# Technical Execution for A/B Testing
+| Column Name       | Description                                      |
+|-------------------|--------------------------------------------------|
+| job_id            | Unique job identifier                            |
+| user_id           | Consumer posting the job                         |
+| variant           | Control (3 leads) / Treatment (4 leads)          |
+| leads_offered     | Number of leads offered (3 or 4)                 |
+| lead_claimed      | Indicator if a tradie claimed the lead (Yes/No)  |
+| claim_timestamp   | Timestamp when the lead was claimed              |
+| conversion_status | Outcome (e.g., quote provided, no response)      |
+| created_at        | Job posting timestamp                            |
 
-## Variants Definition
-- **Control Group:** Jobs receive 3 leads (current standard).
-- **Treatment Group:** Jobs receive 4 leads (new feature).
+### Additional Recommendations
+- Ensure randomized assignment.
+- Calculate adequate sample size.
+- Use real-time dashboards.
+- Conduct regular data quality audits.
 
-## Tracking Requirements
-- **Variant Assignment:**  
-  Track which variant (control or treatment) each job is assigned to.
-- **Job Data:**  
-  Record key attributes such as job ID, consumer ID, category, location, and timestamp.
-- **Lead Tracking:**  
-  Log events when tradies claim leads including claim timestamp and tradie ID.
-- **Conversion Events:**  
-  Capture outcomes like quote provision or lead conversion to assess performance.
-- **User Behavior:**  
-  Monitor additional interactions, for example, follow-up actions or engagement metrics.
+---
 
-## Sample Data Schema
-Below is a sample table structure for analyzing the test results:
+## 5. Interpretation & Simulated Bayesian Analysis
 
-| **Column Name**   | **Description**                                       |
-|-------------------|-------------------------------------------------------|
-| job_id            | Unique identifier for each job                        |
-| user_id           | Identifier for the consumer posting the job           |
-| variant           | Test group assignment (control: 3 leads, treatment: 4 leads) |
-| leads_offered     | Number of leads offered (3 or 4)                       |
-| lead_claimed      | Indicator if a tradie claimed the lead (Yes/No)        |
-| claim_timestamp   | Timestamp when the lead was claimed                    |
-| conversion_status | Outcome of the lead (e.g., quote provided, no response)|
-| created_at        | Timestamp when the job was posted                      |
+### Simulated Analysis
 
-## Additional Recommendations
-- **Randomisation:** Ensure unbiased, random assignment to the test groups.
-- **Sample Size:** Determine the appropriate sample size to detect the expected impact.
-- **Real-Time Monitoring:** Implement dashboards for continuous metric tracking.
-- **Data Quality Audits:** Regularly validate data integrity throughout the experiment.
-- **Post-Test Analysis:** Plan for both primary and secondary metric evaluation to derive comprehensive insights.
+**Prior Setup:**  
+- Historical utilisation is ~75% (750 out of 1,000 leads claimed).  
+- **Prior Distribution:**  
+  - Alpha (α) = 750 + 1 = 751  
+  - Beta (β) = 250 + 1 = 251  
+  - Represented as: `Beta(751, 251)`
 
+**Experimental Data (500 jobs per variant):**
+- **Control (3 Leads):**  
+  - 375 claimed out of 500 (75%)
+- **Treatment (4 Leads):**  
+  - 410 claimed out of 500 (82%)
 
-# Interpretation of A/B Test Results
+**Posterior Updating:**
+- **Control Group:**  
+  - New α = 751 + 375 = 1126  
+  - New β = 251 + (500 - 375) = 251 + 125 = 376  
+  - Posterior: `Beta(1126, 376)`
+- **Treatment Group:**  
+  - New α = 751 + 410 = 1161  
+  - New β = 251 + (500 - 410) = 251 + 90 = 341  
+  - Posterior: `Beta(1161, 341)`
 
-## Primary Outcome Analysis
-- **Key Metric Evaluation:**  
-  Assess the primary metric (e.g., lead conversion or tradie claim rate) to gauge the impact of offering 4 leads versus 3 leads.
-- **Bayesian Analysis:**  
-  Calculate the posterior probability that the treatment (4 leads) outperforms the control (3 leads). A probability greater than 95% indicates strong support for the new feature.
+**Result:**  
+Simulations indicate approximately a **96% probability** that the treatment group's utilisation rate is higher than the control group's.
 
-## Secondary Outcome Analysis
-- **Lead Acceptance Rate:**  
-  Compare the rate at which tradies accept leads between the variants.
-- **Tradie Lead ROI (Return on Investment):**  
-  Evaluate the financial effectiveness by comparing costs and revenues associated with claimed leads.
-- **Tradie Churn Rate (Lagging Indicator):**  
-  Monitor tradie retention over time to assess long-term engagement and satisfaction.
+### Key Takeaways
+- **Prior Integration:** Uses 1,000 historical observations to inform analysis.
+- **Posterior Interpretation:** A 96% probability strongly supports increasing leads to 4.
+- **Actionable Insight:** Supports an adaptive decision-making process.
 
-## Decision Criteria
-- **Success Thresholds:**  
-  Pre-define a success criterion (e.g., >95% posterior probability) to determine if the treatment is commercially viable.
-- **Business Impact Consideration:**  
-  Ensure that improvements in key metrics translate into meaningful revenue gains, improved efficiency, and enhanced customer satisfaction.
+---
 
-## Next Steps - Commercial Driven Recommendations
+## 6. Next Steps & Commercial Recommendations
 
 ### If the Variant Wins
-- **Phased Rollout:**  
-  Given strong Bayesian evidence supporting 4 leads, consider a phased rollout across high-traffic or high-value segments to confirm scalability while maximizing revenue.
-- **Marketing Leverage:**  
-  Use the improved metrics (higher lead acceptance, better ROI, and lower churn) to create compelling success stories for sales and marketing collateral.
-- **Pricing and Contract Strategy:**  
-  Reassess pricing models for leads with the improved conversion metrics, potentially negotiating better terms with tradies or upselling premium lead packages.
-- **Further Optimization:**  
-  Identify segments with the highest performance uplift and explore whether fine-tuning the lead allocation (or even testing additional variants) could yield further commercial benefits.
+- **Phased Rollout:** Expand gradually in high-value segments.
+- **Marketing Leverage:** Use improved metrics for success stories.
+- **Pricing Strategy:** Reassess lead pricing based on improved conversion.
+- **Optimization:** Focus on segments with the highest uplift for further improvements.
 
 ### If the Variant Loses
-- **Hypothesis Reassessment:**  
-  Investigate whether the additional lead may have diluted lead quality, resulting in lower acceptance rates, reduced ROI, and increased churn. This insight could inform improvements in lead matching or allocation algorithms.
-- **Iterative Feature Tuning:**  
-  Consider adjustments such as personalized lead counts based on job category or tradie performance. This may involve additional experiments targeting specific segments.
-- **Stakeholder Communication:**  
-  Clearly communicate the commercial implications of the pilot not meeting expected outcomes. Discuss potential pivot strategies or feature modifications to mitigate negative impacts.
-- **Supplementary Experiments:**  
-  Plan further tests to isolate variables (e.g., quality vs. quantity of leads) and gather more granular insights, ensuring that future iterations better align with commercial objectives.
+- **Reassess Hypothesis:** Explore if additional leads dilute lead quality.
+- **Feature Tuning:** Consider personalized lead allocation.
+- **Stakeholder Communication:** Clearly discuss commercial implications and potential pivots.
+- **Further Testing:** Plan supplementary experiments to refine insights.
 
 
 
