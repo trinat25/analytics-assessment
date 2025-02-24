@@ -1,42 +1,66 @@
-## EDA Job Acceptance Analysis 
+# EDA: Job Acceptance Analysis
 
-I'd like the focus of this analysis to identify which factors drive a tradie's decision to accept a job inviation. 
+This analysis explores the factors that drive a tradie's decision to accept a job invitation. The focus is on understanding the data, cleaning/preparing it, exploring key relationships, and identifying important features using machine learning.
 
-### Step 1 Explore and learn about the dataset / columns
-I meticulously analyse the dataset by clarifying each column's definition, exploring the subtleties of the collected data, and ensuring I fully understand both the methods and timing behind its collection.
+---
 
-### Step 2 Data Preparation 
-- Data cleaning, look at missing values, duplications or outliers. 
-In this case, I noticed
-  - missing value : some jobs have no impressions, 1.10% (110 of the 9,999 records)
-  - some impressions are in negative 
-    - 1.29% of impressions are in negative (about 130 of the 9,999 rows impacted)
-    - Increase in margin of error. This can widen confidence intervals and increase the margin of error, leading to less precise parameter estimates in your predictive model.
-    - Method used , replace with 0 , ignore rows with negative impressions or replace values with median. 
-  - estimated_size only contain small and medium, good to check if the dataset should also have large job size before commencing.
-  - No data available for 23 hour time_of_post
+## 1. Data Exploration & Observations
 
-### Step 3 Exploration 
-- Target Variable (accepted) 
-  - I had  a look at the overall acceptance rate in the data set. 26% of the rows had a job accepted flag. 
-- Continuous Variables  
-  - Used histogram to identify null values, or potential data problems like negative impressions. 
-  - Used boxplot to identify outliers.
-- Other exploration
-  - acceptance vs estimated job size
-  - acceptance vs impressions per tradie
-  - acceptance vs category
-  - acceptance vs hour or day of week
-  - scatter plot to show relationship of impressions per tradie vs acceptance rate
-    
-Please refer to this [visualisation](https://public.tableau.com/app/profile/trina6463/viz/analytics-assessment/analyticsassessment?publish=yes) 
+- **Dataset Overview:**  
+  Reviewed column definitions, data collection methods, and timings.
+  
+- **Key Observations:**
+  - **Missing Values:**  
+    ~1.10% of jobs have no impressions (110 of 9,999 records).
+  - **Negative Impressions:**  
+    1.29% of records have negative values (~130 rows), increasing the margin of error.
+  - **Estimated Size:**  
+    Contains only "small" and "medium" – check for missing "large" job sizes.
+  - **Time of Post:**  
+    No data for the 23:00 time slot.
 
+---
 
-### Step 4 Identify the Features that Best Predict Job Acceptance
-Based on the above EDA, I explored the possibility of predicting job acceptance using a Random Forest classifier and KMeans clustering. 
-I chose these methods because they handle mixed data types well – they work with numerical (e.g., estimated_size) and categorical features (e.g., category) and are effective at capturing non-linear relationships between predictors and the target variable. 
-I also converted 'time_of_post' to a datetime format and extracted time features, as well as applied clustering to the geographical data to enable this analysis.
-```
+## 2. Data Preparation
+
+- **Cleaning:**  
+  - Replace null/negative `number_of_impressions` with 0.
+  - Map `estimated_size` ("small", "medium", "large") to numeric values.
+  
+- **Feature Engineering:**  
+  - Convert `time_of_post` to datetime; extract `post_hour` and `post_dayofweek`.
+  - Apply KMeans clustering on geographical coordinates to create a `geo_cluster` feature, then drop raw latitude and longitude.
+
+---
+
+## 3. Exploratory Analysis
+
+- **Target Variable:**  
+  Overall acceptance rate is 26%.
+  
+- **Analyses Conducted:**  
+  - Histograms and boxplots for continuous variables (e.g., impressions).
+  - Comparison plots for acceptance vs. estimated job size, impressions per tradie, category, and posting time.
+  - Scatter plots for impressions per tradie vs. acceptance rate.
+
+- **Visualization:**  
+  [View interactive visualization](https://public.tableau.com/app/profile/trina6463/viz/analytics-assessment/analyticsassessment?publish=yes)
+
+---
+
+## 4. Feature Selection & Modeling
+
+- **Approach:**  
+  Utilized a Random Forest classifier to assess feature importances and KMeans clustering to segment geographical data.
+  
+- **Selected Features:**  
+  - `post_hour`, `post_dayofweek`, `geo_cluster`, `category`, `number_of_tradies`, `estimated_size`, `number_of_impressions`
+
+---
+
+## 5. Code Implementation
+
+```python
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -45,73 +69,54 @@ from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# File path to your CSV file
+# Load and clean the dataset
 file_path = '/Users/trinatan/downloads/Data Analytics Case Study - jobs.csv'
-
-# Load the dataset
 df = pd.read_csv(file_path)
-
-# Strip extra whitespace from column names
 df.columns = df.columns.str.strip()
-print("Columns in DataFrame:", df.columns.tolist())
 
-# Convert 'time_of_post' to datetime and extract time features
+# Convert 'time_of_post' to datetime and extract features
 df['time_of_post'] = pd.to_datetime(df['time_of_post'])
 df['post_hour'] = df['time_of_post'].dt.hour
-df['post_dayofweek'] = df['time_of_post'].dt.dayofweek  # 0 = Monday, 6 = Sunday
+df['post_dayofweek'] = df['time_of_post'].dt.dayofweek
 
-# Clean the 'number_of_impressions' column: replace nulls or negatives with 0
+# Clean 'number_of_impressions'
 df['number_of_impressions'] = df['number_of_impressions'].apply(lambda x: 0 if pd.isnull(x) or x < 0 else x)
 
-# Handle 'estimated_size': convert strings like 'small', 'medium', 'large' to numeric values
-def map_estimated_size(x):
-    if isinstance(x, str):
-        mapping = {'small': 1, 'medium': 2, 'large': 3}
-        return mapping.get(x.lower(), np.nan)
-    return x
-
-df['estimated_size'] = df['estimated_size'].apply(map_estimated_size)
-# Optionally, fill missing values with the median if needed
+# Map 'estimated_size' to numeric values
+size_mapping = {'small': 1, 'medium': 2, 'large': 3}
+df['estimated_size'] = df['estimated_size'].apply(lambda x: size_mapping.get(x.lower(), np.nan) if isinstance(x, str) else x)
 df['estimated_size'] = df['estimated_size'].fillna(df['estimated_size'].median())
 
-# Perform KMeans clustering on geographical coordinates (latitude and longitude)
+# Geographical clustering using KMeans
 kmeans = KMeans(n_clusters=5, random_state=42)
 df['geo_cluster'] = kmeans.fit_predict(df[['latitude', 'longitude']])
+df.drop(columns=['latitude', 'longitude'], inplace=True)
 
-# Drop the raw latitude and longitude columns since geo_cluster captures spatial info
-df = df.drop(columns=['latitude', 'longitude'])
-
-# Define features and target variable.
-# Note: latitude and longitude are no longer included.
+# Define features and target
 features = ['post_hour', 'post_dayofweek', 'geo_cluster', 'category',
             'number_of_tradies', 'estimated_size', 'number_of_impressions']
 target = 'accepted'
 
-# Verify that all features exist in the DataFrame
+# Validate feature existence
 missing_cols = [col for col in features if col not in df.columns]
 if missing_cols:
-    print("Missing columns detected:", missing_cols)
+    print("Missing columns:", missing_cols)
     features = [col for col in features if col in df.columns]
-    print("Updated features list:", features)
 
-# Create feature matrix X and target vector y
 X = df[features]
 y = df[target]
 
-# Split the data into training and testing sets (70% train, 30% test)
+# Train-test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-# Train a RandomForestClassifier to assess feature importances
+# Train RandomForestClassifier and compute feature importances
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
 rf.fit(X_train, y_train)
-
-# Extract and sort feature importances
 importances = rf.feature_importances_
-feature_importance = pd.DataFrame({'feature': features, 'importance': importances})
-feature_importance.sort_values(by='importance', ascending=False, inplace=True)
+feature_importance = pd.DataFrame({'feature': features, 'importance': importances}).sort_values(by='importance', ascending=False)
 print(feature_importance)
 
-# Visualize the feature importances
+# Plot feature importances
 plt.figure(figsize=(10, 6))
 sns.barplot(x='importance', y='feature', data=feature_importance)
 plt.title('Feature Importances in Predicting Job Acceptance')
@@ -133,21 +138,22 @@ plt.show()
 With this plot 
 ![Screenshot 2025-02-24 at 1 05 54 am](https://github.com/user-attachments/assets/25504ebd-e269-497f-bc1d-9bd6241b30d7)
 
-### Step 5 - Recommendations 
-1. Optimise Job Impressions Without Oversaturation:
-While number_of_impressions is the most important factor (0.321088), the negative correlation between impressions per tradie and job acceptance rate suggests that simply increasing impressions may reduce engagement. Therefore, focus on targeted visibility rather than mass exposure:
-- Personalised Notifications: Use machine learning models to recommend jobs that match each tradie’s skills, location, and past preferences, ensuring that impressions are relevant.
-- Frequency Capping: Limit the number of times a single tradie sees the same job to prevent notification fatigue.
+## 6. Recommendations
 
-2. Optimise Posting Times:
-With post_hour (0.291276) and post_dayofweek (0.118245) being influential, the timing of job posts is critical. You could:
-- Analyse which hours and days yield the highest acceptance rates and schedule postings accordingly.
-- Test different posting times (A/B testing) to identify the best windows for tradie engagement.
+### Optimise Job Impressions
+- **Targeted Impressions:**  
+  Focus on targeted, relevant impressions rather than increasing them indiscriminately.
+- **Personalised Notifications:**  
+  Consider personalised notifications and frequency capping to avoid oversaturation.
 
-3. Increase Outreach:
-The number_of_tradies (0.106685) suggests that reaching a broader audience can improve acceptance rates. Strategies might include:
-- Expanding the pool of tradies by improving your recruitment or onboarding efforts.
-- Using dynamic targeting to ensure jobs are sent to tradies most likely to accept.
-- Offering incentives or bonuses for tradies to engage with new job postings.
+### Optimise Posting Times
+- **Optimal Timing:**  
+  Identify optimal hours and days for job posts based on acceptance rates.
+- **A/B Testing:**  
+  Experiment with A/B testing different posting times to enhance engagement.
 
-By focusing on these areas—especially boosting impressions and optimising posting times—you can drive more tradies to view and ultimately accept job invitations, improving overall acceptance rates.
+### Increase Outreach
+- **Expand Tradie Pool:**  
+  Improve recruitment and onboarding to expand the tradie pool.
+- **Dynamic Targeting & Incentives:**  
+  Use dynamic targeting and incentives to boost engagement with job postings.
