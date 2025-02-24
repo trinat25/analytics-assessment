@@ -50,21 +50,24 @@ With Casting: Using CAST(DateSent AS DATE) or DATE(DateSent) makes the query mor
 -- 3. The most recent message from each thread that has no response yet
 
 /*
-Reasoning Behind the Code:
-I assume that a message thread always begins with a sender. Based on this, I have introduced the thread status "No response – Single message" to account for cases where no reply has been received.
+Reasoning Behind the Code
+Assumption:  
+Every message thread begins with a sender. Based on this, I've introduced a thread status labeled "No response – Single message" for cases where no reply is received.
 
-I assume there are two types of unanswered threads:
+Unanswered Threads: 
+  1. Waiting on Recipient: The sender sent the last message.
+  2. Waiting on Sender: The recipient sent the last message.
 
-Waiting for a response from the recipient (when the sender sent the last message), and
-Waiting for a response from the sender (when the recipient sent the last message).
-In a real-world scenario, I would conduct further exploration and potentially analyse the content of the final message to determine whether a response is actually expected. For example, phrases like "Thank you", "Got it", or "No worries" could indicate that the conversation is resolved and does not require a response. This could be enhanced using natural language processing (NLP) techniques to automate the identification of such phrases.
+Further Analysis:  
+  In a real-world scenario, I would analyze the final message content to determine if a reply is expected. For example, phrases like "Thank you", "Got it", or "No worries" might indicate that no further response is needed. Natural language processing (NLP) techniques could automate this identification.
 
-I could also expand the analysis by calculating response rates over time to identify behavioural trends. For example:
-
-(Latest thread by sender / Total messages sent by sender) and
-(Latest thread by recipient / Total messages sent by recipient)
-These metrics could be tracked as a time series to observe patterns and identify changes over time. This approach could help detect seasonal trends, sudden shifts in communication behaviour, and long-term improvements or declines in response rates.
-*/ 
+Tracking Trends:  
+  I could also calculate response rates over time, such as:
+  - (Latest thread by sender / Total messages sent by sender)
+  - (Latest thread by recipient / Total messages sent by recipient)
+  
+  Tracking these metrics as a time series would help identify seasonal trends, shifts in communication behavior, and long-term changes in response rates.
+*/
 
 WITH ThreadLastMessage AS (
     SELECT 
